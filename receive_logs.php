@@ -12,32 +12,28 @@ $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
 $channel = $connection->channel();
 
 /**
- * What queue it will be used
+ * Instead to send to a queue send to a exchange
  */
-$channel->queue_declare('task_queue', false, true, false, false);
+$channel->exchange_declare('logs', 'fanout', false, false, false);
 
-echo ' [*] Waiting for messages. To exit press CTRL+C', "\n";
+list($queue_name, ,) = $channel->queue_declare("", false, false, true, false);
+
+$channel->queue_bind($queue_name, 'logs');
+
+echo ' [*] Waiting for logs messages. To exit press CTRL+C', "\n";
 
 /**
  * Method the will receive and treat the messages
  */
 $callback = function ($msg) {
   echo ' [x] Received ', $msg->body, "\n";
-  sleep(substr_count($msg->body, '.'));
-  echo " [x] Done\n";
-  $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
 };
-
-/**
- * not to give more than one message to a worker at a time
- */
-$channel->basic_qos(null, 1, null);
 
 /**
  * Add this callback to the queue
  * 2nd boolean = ack (true = no ack)
  */
-$channel->basic_consume('task_queue', '', false, false, false, false, $callback);
+$channel->basic_consume($queue_name, '', false, true, false, false, $callback);
 
 /**
  * Keep the method listening the queue for indeterminate time

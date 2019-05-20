@@ -15,8 +15,9 @@ composer.phar install
 
 ## Run
 To send the message:
-   - php -f new_task.php
+   - php -f emit_log.php
 
 To receive the message:
-   - php -f worker.php
+   - php -f receive_logs.php
+   - php receive_logs.php > logs_from_rabbit.log (in file)
 

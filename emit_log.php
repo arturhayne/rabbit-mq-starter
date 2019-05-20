@@ -12,27 +12,24 @@ $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
 $channel = $connection->channel();
 
 /**
- * What queue it will send the letter
+ * Instead to send to a queue send to a exchange
+ * exchange types: direct, topic, headers and fanout
  */
-$channel->queue_declare('task_queue', false, true, false, false);
+$channel->exchange_declare('logs', 'fanout', false, false, false);
 
 $data = implode(' ', array_slice($argv, 1));
 if (empty($data)) {
-    $data = "Hello World!";
+    $data = "info:Hello World!";
 }
 
-/**
- * delivery-mode persistent to persist message on disk for short time
- */
-$msg = new AMQPMessage(
-    $data,
-    array('delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT)
-);
+$msg = new AMQPMessage($data);
 
 /**
  * Send to the queue
+ * 2nd parameter exchange name
+ * 3rd queue - in this case default (nameless)
  */
-$channel->basic_publish($msg, '', 'task_queue');
+$channel->basic_publish($msg, 'logs');
 
 echo ' [x] Sent ', $data, "\n";
 
