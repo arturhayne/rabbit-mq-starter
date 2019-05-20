@@ -24,7 +24,7 @@ $msg = new AMQPMessage('Hello!');
 /**
  * Send to the queue
  */
-$channel->basic_publish($msg, '', 'hello');
+$channel->basic_publish($msg, '', 'my-queue');
 
 /**
  * Close connection
