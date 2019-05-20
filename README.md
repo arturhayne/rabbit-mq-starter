@@ -15,8 +15,8 @@ composer.phar install
 
 ## Run
 To send the message:
-   - php -f send.php
+   - php -f new_task.php
 
 To receive the message:
-   - php -f receive.php
+   - php -f worker.php
 
