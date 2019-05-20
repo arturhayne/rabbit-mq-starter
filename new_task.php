@@ -14,17 +14,27 @@ $channel = $connection->channel();
 /**
  * What queue it will send the letter
  */
-$channel->queue_declare('my-queue', false, false, false, false);
+$channel->queue_declare('task_queue', false, true, false, false);
+
+$data = implode(' ', array_slice($argv, 1));
+if (empty($data)) {
+    $data = "Hello World!";
+}
 
 /**
- * Create the message
+ * delivery-mode persistent to persist message on disk for short time
  */
-$msg = new AMQPMessage('Hello!');
+$msg = new AMQPMessage(
+    $data,
+    array('delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT)
+);
 
 /**
  * Send to the queue
  */
-$channel->basic_publish($msg, '', 'my-queue');
+$channel->basic_publish($msg, '', 'task_queue');
+
+echo ' [x] Sent ', $data, "\n";
 
 /**
  * Close connection
